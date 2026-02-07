@@ -57,44 +57,116 @@ def organize_files(src_path, dst_path, log_callback=None):
             if log_callback: log_callback(f"Error moving {file}: {str(e)}")
 
 def main(page: ft.Page):
-    page.title = "File Organizer"
+    page.title = "Neumorphic File Organizer"
+    page.bgcolor = "#EDEDED"
+    page.padding = 40
     page.theme_mode = ft.ThemeMode.LIGHT
-    page.padding = 20
 
-    src_dir = ft.TextField(label="Source Directory", expand=True)
-    dst_dir = ft.TextField(label="Destination Directory", expand=True)
+    # Neumorphic styling constants
+    BG_COLOR = "#EDEDED"
+    LIGHT_SHADOW = "#FFFFFF"
+    DARK_SHADOW = "#B0B0B0"
+
+    neumorphic_shadow = [
+        ft.BoxShadow(
+            spread_radius=1,
+            blur_radius=10,
+            color=DARK_SHADOW,
+            offset=ft.Offset(5, 5),
+        ),
+        ft.BoxShadow(
+            spread_radius=1,
+            blur_radius=10,
+            color=LIGHT_SHADOW,
+            offset=ft.Offset(-5, -5),
+        ),
+    ]
+
+    src_dir_input = ft.TextField(
+        label="Source Directory",
+        border=ft.InputBorder.NONE,
+        expand=True,
+        hint_text="Enter source path...",
+        content_padding=15,
+    )
+
+    dst_dir_input = ft.TextField(
+        label="Destination Directory",
+        border=ft.InputBorder.NONE,
+        expand=True,
+        hint_text="Enter destination path...",
+        content_padding=15,
+    )
 
     log_area = ft.ListView(expand=True, spacing=5, padding=10, auto_scroll=True)
 
     def log(message):
         now = datetime.datetime.now().strftime("%H:%M:%S")
-        log_area.controls.append(ft.Text(f"[{now}] {message}"))
+        log_area.controls.append(ft.Text(f"[{now}] {message}", color=ft.Colors.BLACK54))
         page.update()
 
     def start_organizing(e):
-        if not src_dir.value or not dst_dir.value:
+        if not src_dir_input.value or not dst_dir_input.value:
             log("Please provide both source and destination directories.")
             return
 
-        log(f"Starting organization from {src_dir.value} to {dst_dir.value}...")
-        organize_files(src_dir.value, dst_dir.value, log)
+        log(f"Starting organization from {src_dir_input.value} to {dst_dir_input.value}...")
+        organize_files(src_dir_input.value, dst_dir_input.value, log)
         log("Finished organization.")
 
     page.add(
         ft.Column([
-            ft.Text("File Organizer", size=30, weight=ft.FontWeight.BOLD),
-            ft.Row([src_dir]),
-            ft.Row([dst_dir]),
-            ft.Button("Start Organizing", on_click=start_organizing),
-            ft.Text("Logs:", size=20, weight=ft.FontWeight.BOLD),
+            ft.Text("File Organizer", size=40, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK87),
+            ft.Container(height=20),
+
+            ft.Container(
+                content=src_dir_input,
+                bgcolor=BG_COLOR,
+                border_radius=15,
+                shadow=neumorphic_shadow,
+                padding=ft.Padding.symmetric(horizontal=10),
+            ),
+
+            ft.Container(height=20),
+
+            ft.Container(
+                content=dst_dir_input,
+                bgcolor=BG_COLOR,
+                border_radius=15,
+                shadow=neumorphic_shadow,
+                padding=ft.Padding.symmetric(horizontal=10),
+            ),
+
+            ft.Container(height=30),
+
+            ft.Container(
+                content=ft.TextButton(
+                    content=ft.Text("Start Organizing", size=18, weight=ft.FontWeight.W_600),
+                    on_click=start_organizing,
+                    style=ft.ButtonStyle(color=ft.Colors.BLUE_600),
+                ),
+                bgcolor=BG_COLOR,
+                border_radius=15,
+                shadow=neumorphic_shadow,
+                alignment=ft.Alignment(0, 0),
+                width=200,
+                height=50,
+            ),
+
+            ft.Container(height=40),
+
+            ft.Text("Logs:", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK87),
             ft.Container(
                 content=log_area,
-                border=ft.border.all(1, ft.Colors.OUTLINE),
-                border_radius=5,
+                bgcolor=BG_COLOR,
+                border_radius=15,
+                shadow=neumorphic_shadow,
                 height=300,
+                expand=True,
+                padding=10,
             )
-        ], expand=True)
+        ], scroll=ft.ScrollMode.AUTO, expand=True)
     )
 
 if __name__ == "__main__":
-    ft.run(main)
+    ft.run(main, view=ft.AppView.WEB_BROWSER, port=8550)
